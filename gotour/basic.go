@@ -54,8 +54,14 @@ func pow(x, n, lim float64) float64 {
 	return lim
 }
 
-func main() {
-	defer fmt.Println("world")
-	fmt.Println("hello")
+type Vertex struct {
+	X int
+	Y int
+}
 
+func main() {
+	v := Vertex{1, 2}
+	p := &v
+	p.X = 1e9
+	fmt.Println(v)
 }
