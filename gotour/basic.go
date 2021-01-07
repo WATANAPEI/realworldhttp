@@ -36,6 +36,15 @@ func sqrt(x float64) string {
 	return fmt.Sprint(math.Sqrt(x))
 }
 
+func Sqrt(x float64) float64 {
+	z := 1.0
+	for i := 0; i < 10; i++ {
+		z -= (z*z - x) / (2 * z)
+		fmt.Println("z is", z, "(", i+1, "times)")
+	}
+	return z
+}
+
 func pow(x, n, lim float64) float64 {
 	if v := math.Pow(x, n); v < lim {
 		return v
@@ -46,8 +55,7 @@ func pow(x, n, lim float64) float64 {
 }
 
 func main() {
-	fmt.Println(
-		pow(3, 2, 10),
-		pow(3, 3, 20),
-	)
+	defer fmt.Println("world")
+	fmt.Println("hello")
+
 }
