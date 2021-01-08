@@ -45,23 +45,29 @@ func Sqrt(x float64) float64 {
 	return z
 }
 
-func pow(x, n, lim float64) float64 {
-	if v := math.Pow(x, n); v < lim {
-		return v
-	} else {
-		fmt.Printf("%g >= %g\n", v, lim)
-	}
-	return lim
-}
-
 type Vertex struct {
 	X int
 	Y int
 }
 
+//var pow = []int{1, 2, 4, 8, 16, 32, 64, 128}
+
+func Pic(dx, dy int) [][]uint8 {
+	var row []uint8
+	var matrix [][]uint8
+	for i := 0; i < dx; i++ {
+		row = row[:0]
+		for j := 0; j < dy; j++ {
+			row = append(row, uint8(i*j))
+		}
+		matrix = append(matrix, row)
+	}
+	return matrix
+}
+
 func main() {
-	v := Vertex{1, 2}
-	p := &v
-	p.X = 1e9
-	fmt.Println(v)
+}
+
+func printSlice(s []int) {
+	fmt.Printf("len=%d cap=%d %v\n", len(s), cap(s), s)
 }
