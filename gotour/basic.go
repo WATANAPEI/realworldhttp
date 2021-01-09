@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math"
+	"strings"
 )
 
 const Pi = 3.14
@@ -46,11 +47,8 @@ func Sqrt(x float64) float64 {
 }
 
 type Vertex struct {
-	X int
-	Y int
+	Lat, Long float64
 }
-
-//var pow = []int{1, 2, 4, 8, 16, 32, 64, 128}
 
 func Pic(dx, dy int) [][]uint8 {
 	var row []uint8
@@ -65,7 +63,66 @@ func Pic(dx, dy int) [][]uint8 {
 	return matrix
 }
 
+func WordCount(s string) map[string]int {
+	result := make(map[string]int)
+	splited := strings.Fields(s)
+	for i := 0; i < len(splited); i++ {
+		result[splited[i]] += 1
+	}
+	return result
+}
+
+var m = map[string]Vertex{
+	"Bell Labs": {
+		40.68433, -74.39967,
+	},
+	"Google": {
+		37.42202, -122.08408,
+	},
+}
+
+func compute(fn func(float64, float64) float64) float64 {
+	return fn(3, 4)
+}
+
+func adder() func(int) int {
+	sum := 0
+	return func(x int) int {
+		sum += x
+		return sum
+	}
+}
+
+func fibonacci() func() int {
+	initials := make([]int, 0)
+	initials = append(initials, 0)
+	prev := 0
+	current := 0
+	tmp := 0
+
+	return func() int {
+		if prev == 0 && current == 0 {
+			current = 1
+			return 0
+		} else if prev == 0 && current == 1 {
+			prev = 1
+			current = 1
+			return 1
+		} else {
+			tmp = prev
+			prev = current
+			current += tmp
+			return current
+		}
+	}
+
+}
+
 func main() {
+	f := fibonacci()
+	for i := 0; i < 10; i++ {
+		fmt.Println(f())
+	}
 }
 
 func printSlice(s []int) {
