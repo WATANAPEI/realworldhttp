@@ -2,8 +2,11 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"math"
+	"os"
 	"strings"
+	"time"
 )
 
 const Pi = 3.14
@@ -37,14 +40,14 @@ func sqrt(x float64) string {
 	return fmt.Sprint(math.Sqrt(x))
 }
 
-func Sqrt(x float64) float64 {
-	z := 1.0
-	for i := 0; i < 10; i++ {
-		z -= (z*z - x) / (2 * z)
-		fmt.Println("z is", z, "(", i+1, "times)")
-	}
-	return z
-}
+// func Sqrt(x float64) float64 {
+// 	z := 1.0
+// 	for i := 0; i < 10; i++ {
+// 		z -= (z*z - x) / (2 * z)
+// 		fmt.Println("z is", z, "(", i+1, "times)")
+// 	}
+// 	return z
+// }
 
 type Vertex struct {
 	X, Y float64
@@ -197,15 +200,68 @@ func (i IPAddr) String() string {
 	return fmt.Sprintf("%d.%d.%d.%d", i[0], i[1], i[2], i[3])
 }
 
-func main() {
-	hosts := map[string]IPAddr{
-		"loopback":  {127, 0, 0, 1},
-		"googleDNS": {8, 8, 8, 8},
-	}
-	for name, ip := range hosts {
-		fmt.Printf("%v: %v\n", name, ip)
-	}
+type MyError struct {
+	When time.Time
+	What string
+}
 
+func (e *MyError) Error() string {
+	return fmt.Sprintf("at %v, %s", e.When, e.What)
+}
+
+func run() error {
+	return &MyError{
+		time.Now(),
+		"It didn't work",
+	}
+}
+
+type ErrNegativeSqrt float64
+
+func (e ErrNegativeSqrt) Error() string {
+	str := fmt.Sprint(float64(e))
+	return fmt.Sprint("cannot Sqrt negative number: ", str)
+}
+
+func Sqrt(x float64) (float64, error) {
+	if x < 0 {
+		e := ErrNegativeSqrt(x)
+		return x, e
+	}
+	return x, nil
+}
+
+type MyReader struct{}
+
+func (r MyReader) Read(b []byte) (int, error) {
+	b = append(b, 'A')
+	return 1, nil
+}
+
+type rot13Reader struct {
+	r io.Reader
+}
+
+func (r13 rot13Reader) Read(b []byte) (int, error) {
+	n, err := r13.r.Read(b)
+	for i := 0; i < n; i++ {
+		if rune(b[i]) >= 'a' && rune(b[i]) <= 'z' {
+			b[i] = (b[i]-97+13)%26 + 97
+		} else if rune(b[i]) >= 'A' && rune(b[i]) <= 'Z' {
+			b[i] = (b[i]-65+13)%26 + 65
+		}
+	}
+	if err == io.EOF {
+		return n, io.EOF
+	}
+	return n, nil
+
+}
+
+func main() {
+	s := strings.NewReader("Lbh penpxrq gur pbqr!")
+	r := rot13Reader{s}
+	io.Copy(os.Stdout, &r)
 }
 
 func printSlice(s []int) {
