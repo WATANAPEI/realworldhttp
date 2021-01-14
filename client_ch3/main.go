@@ -2,13 +2,17 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"io"
 	"log"
 	"mime/multipart"
 	"net/http"
+	"net/http/cookiejar"
+	"net/http/httputil"
 	"net/textproto"
 	"net/url"
 	"os"
+	"time"
 )
 
 func postMultiPartWithImageMime() {
@@ -75,7 +79,98 @@ func post() {
 
 }
 
-func main() {
+func useCookie() {
+	jar, err := cookiejar.New(nil)
+	if err != nil {
+		panic(err)
+	}
+	client := http.Client{
+		Jar: jar,
+	}
+	for i := 0; i < 2; i++ {
+		resp, err := client.Get("http://localhost:18888/cookie")
+		if err != nil {
+			panic(err)
+		}
+		dump, err := httputil.DumpResponse(resp, true)
+		if err != nil {
+			panic(err)
+		}
+		log.Println(string(dump))
+	}
 
-	post()
+}
+
+func transport() {
+	proxyUrl, err := url.Parse("http://localhost:18888")
+	if err != nil {
+		panic(err)
+	}
+	client := http.Client{
+		Transport: &http.Transport{
+			Proxy: http.ProxyURL(proxyUrl),
+		},
+	}
+	resp, err := client.Get("http://github.com")
+	if err != nil {
+		panic(err)
+	}
+	dump, err := httputil.DumpResponse(resp, true)
+	if err != nil {
+		panic(err)
+	}
+	log.Println(string(dump))
+}
+
+func fileAccess() {
+	transport := &http.Transport{}
+	transport.RegisterProtocol("file", http.NewFileTransport(http.Dir(".")))
+	client := http.Client{
+		Transport: transport,
+	}
+	resp, err := client.Get("file://./main.go")
+	if err != nil {
+		panic(err)
+	}
+	dump, err := httputil.DumpResponse(resp, true)
+	if err != nil {
+		panic(err)
+	}
+	log.Println(string(dump))
+
+}
+
+func delete() {
+	client := &http.Client{}
+	request, err := http.NewRequest("DELETE", "http://localhost:18888", nil)
+	request.Header.Add("aaa", "bbb")
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	req, _ := http.NewRequestWithContext(ctx, "GET", "http://localhost:18888/slow_page", nil)
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		panic(err)
+	}
+	dump, err := httputil.DumpResponse(res, true)
+	if err != nil {
+		panic(err)
+	}
+	log.Println(string(dump))
+	if err != nil {
+		panic(err)
+	}
+	resp, err := client.Do(request)
+	if err != nil {
+		panic(err)
+	}
+	dump, err = httputil.DumpResponse(resp, true)
+	if err != nil {
+		panic(err)
+	}
+	log.Println(string(dump))
+
+}
+
+func main() {
+	delete()
 }
