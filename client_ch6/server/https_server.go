@@ -70,13 +70,16 @@ func http_Server() {
 		},
 		Addr: ":18443",
 	}
-	http.HandleFunc("/", handler)
+	http.HandleFunc("/", handlerUpgrade)
 	log.Println("start http listening: 18443")
 	err := server.ListenAndServeTLS("./cert/server.crt", "./cert/server.key")
 	log.Println(err)
 }
 
 func main() {
-	//highLevelApi()
-	http_Server()
+	var httpServer http.Server
+	http.HandleFunc("/", handlerUpgrade)
+	log.Println("start http listening :18888")
+	httpServer.Addr = ":18888"
+	log.Println(httpServer.ListenAndServe())
 }
