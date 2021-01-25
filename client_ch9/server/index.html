@@ -2,17 +2,18 @@
 <html>
     <head>
         <meta charset="UTF-8">
-        <meta name="viewport" content="width=devide-width, initial-scale=1" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>素数</title>
         <script src="//unpkg.com/mithril/mithril.js"></script>
         <script src="//unpkg.com/mithril-stream"></script>
+        <script src="//unpkg.com/mithril/stream/stream.js"></script>
     </head>
     <body>
         <div id="root"></div>
         <script>
             const component = {
                 oninit: function(vnode) {
-                    this.primes = stream([]);
+                    this.primes = stream();
                     const sse = new EventSource('/prime');
                     sse.onmessage = (event) => {
                         this.primes().splice(0, 0, JSON.parse(event.data));
