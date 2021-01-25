@@ -18,7 +18,7 @@ func handlerHtml(w http.ResponseWriter, r *http.Request) {
 }
 
 func handlerPrimeSSE(w http.ResponseWriter, r *http.Request) {
-	flusher, ok := w.(http.Pusher)
+	flusher, ok := w.(http.Flusher)
 	if !ok {
 		http.Error(w, "Streaming unsupported!", http.StatusInternalServerError)
 		return
@@ -30,9 +30,9 @@ func handlerPrimeSSE(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	var num int64 = 1
-	fo id := 1; id <= 100; id++ {
+	for id := 1; id <= 100; id++ {
 		select {
-		case <- ctx.Done():
+		case <-ctx.Done():
 			fmt.Println("connection closed from client")
 			return
 		default:
@@ -61,14 +61,14 @@ func init() {
 	}
 }
 
-func handlerHtml(w http.ResponseWriter, r *http.Request) {
-	pusher, ok := w.(http.Pusher)
-	if ok {
-		pusher.Push("/image", nil)
-	}
-	w.Header().Add("Content-Type", "text/html")
-	fmt.Fprintf(w, `<html><body><img src="/image"></body></html>`)
-}
+// func handlerHtml(w http.ResponseWriter, r *http.Request) {
+// 	pusher, ok := w.(http.Pusher)
+// 	if ok {
+// 		pusher.Push("/image", nil)
+// 	}
+// 	w.Header().Add("Content-Type", "text/html")
+// 	fmt.Fprintf(w, `<html><body><img src="/image"></body></html>`)
+// }
 
 func handlerImage(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "image/jpeg")
@@ -82,8 +82,8 @@ func main() {
 	// err := http.ListenAndServeTLS(":18443", "./cert/server.crt", "./cert/server.key", nil)
 	// fmt.Println(err)
 	var err error
-	html, err := ioutil.ReadFile("index.html")
-	if err!= nil {
+	html, err = ioutil.ReadFile("index.html")
+	if err != nil {
 		panic(err)
 	}
 	http.HandleFunc("/", handlerHtml)
