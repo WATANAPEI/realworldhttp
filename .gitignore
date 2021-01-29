@@ -14,5 +14,7 @@
 # Dependency directories (remove the comment below to include it)
 # vendor/
 
-client_ch6/server/cert/*
-client_ch9/server/cert/*
+ch06/server/cert/*
+ch09/server/cert/*
+
+access_token.json
